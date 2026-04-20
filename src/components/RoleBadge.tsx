@@ -1,30 +1,29 @@
 "use client";
 
-import { Role } from "@/data/mockData";
 import { Crown, Pencil, Eye } from "lucide-react";
 
 const config: Record<
-  Role,
+  string,
   { label: string; cls: string; Icon: React.ElementType }
 > = {
   admin: {
-    label: "Admin",
+    label: "admin",
     cls: "bg-gradient-primary text-primary-foreground",
     Icon: Crown,
   },
   editor: {
-    label: "Editor",
+    label: "editor",
     cls: "bg-accent text-accent-foreground",
     Icon: Pencil,
   },
   viewer: {
-    label: "Viewer",
+    label: "viewer",
     cls: "bg-muted text-muted-foreground",
     Icon: Eye,
   },
 };
 
-export default function RoleBadge({ role }: { role: Role }) {
+export default function RoleBadge({ role }: { role: string }) {
   const { label, cls, Icon } = config[role];
 
   return (

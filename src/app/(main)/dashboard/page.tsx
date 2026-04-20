@@ -23,6 +23,7 @@ import RoleBadge from "@/components/RoleBadge";
 import { Article } from "@/data/mockData";
 import { Plus, Search, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -45,39 +46,65 @@ export default function Dashboard() {
   const [filter, setFilter] = useState<"all" | "draft" | "published">("all");
   const [viewing, setViewing] = useState<Article | null>(null);
 
+  const [Article, setArticle] = useState<Article[]>([]);
+
   const users = useMemo(() => storage.getUsers(), []);
 
-  // ✅ Replace Navigate
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
+  const getAllArticles = async () => {
+    try {
+      const res = await axios.get("/api/article", {
+        withCredentials: true,
+      });
+      setArticle(res.data.articles);
+      console.log("Fetched articles:", res.data.articles);
+    } catch (error) {
+      console.error("Error fetching articles:", error);
     }
-  }, [user, loading, router]);
+  };
+
+  useEffect(() => {
+    if (user) {
+      getAllArticles();
+    }
+  }, [user]);
 
   if (loading || !user) return null;
 
-  const list = visibleArticles(user)
-    .filter((a) => (filter === "all" ? true : a.status === filter))
-    .filter((a) =>
-      a.title.toLowerCase().includes(query.toLowerCase())
-    );
+  const list = Article
+  .filter((a) => (filter === "all" ? true : a.status === filter))
+  .filter((a) =>
+    a.title.toLowerCase().includes(query.toLowerCase())
+  );
 
-  const handleCreate = (e: FormEvent) => {
+  const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!title.trim() || !content.trim()) return;
 
-    const res = createArticle(user, { title, content });
+    try {
+      const res = await axios.post(
+        "/api/article",
+        {
+          title,
+          content,
+          status: "draft", // optional
+        },
+        {
+          withCredentials: true, // ✅ important for cookies
+        }
+      );
 
-    if (!res.ok) {
-      toast.error(res.error ?? "Could not create");
-      return;
+      toast.success("Draft created");
+
+      setTitle("");
+      setContent("");
+      setOpen(false);
+    } catch (err: any) {
+      const message =
+        err.response?.data?.error || "Could not create";
+
+      toast.error(message);
     }
-
-    toast.success("Draft created");
-    setTitle("");
-    setContent("");
-    setOpen(false);
   };
 
   const handleDelete = (id: string) => {
@@ -206,11 +233,10 @@ export default function Dashboard() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-1.5 rounded-md text-sm ${
-                  filter === f
-                    ? "bg-card text-foreground"
-                    : "text-muted-foreground"
-                }`}
+                className={`px-4 py-1.5 rounded-md text-sm ${filter === f
+                  ? "bg-card text-foreground"
+                  : "text-muted-foreground"
+                  }`}
               >
                 {f}
               </button>
@@ -228,19 +254,19 @@ export default function Dashboard() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((a) => {
             const author = users.find(
-              (u) => u.id === a.createdBy
+              (u) => u._id === a.createdBy
             );
 
             return (
               <ArticleCard
-                key={a.id}
+                key={a._id}
                 article={a}
                 author={author}
                 currentUser={user}
                 canDelete={canDelete(user, a)}
                 canPublish={canPublish(user, a)}
-                onDelete={() => handleDelete(a.id)}
-                onPublish={() => handlePublish(a.id)}
+                onDelete={() => handleDelete(a._id)}
+                onPublish={() => handlePublish(a._id)}
                 onView={() => setViewing(a)}
               />
             );
@@ -253,8 +279,8 @@ export default function Dashboard() {
         author={
           viewing
             ? users.find(
-                (u) => u.id === viewing.createdBy
-              )
+              (u) => u._id === viewing.createdBy
+            )
             : undefined
         }
         open={!!viewing}

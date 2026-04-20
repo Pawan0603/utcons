@@ -20,7 +20,7 @@ export function useArticles() {
 
   const log = (userId: string, action: AuditAction, articleId: string) => {
     const entry: AuditLog = {
-      id: uid(),
+      _id: uid(),
       userId,
       action,
       articleId,
@@ -39,14 +39,14 @@ export function useArticles() {
   const canDelete = (user: User | null, article: Article) => {
     if (!user) return false;
     if (user.role === "admin") return true;
-    if (user.role === "editor") return article.createdBy === user.id;
+    if (user.role === "editor") return article.createdBy === user._id;
     return false;
   };
 
   const canPublish = (user: User | null, article: Article) => {
     if (!user || article.status === "published") return false;
     if (user.role === "admin") return true;
-    if (user.role === "editor") return article.createdBy === user.id;
+    if (user.role === "editor") return article.createdBy === user._id;
     return false;
   };
 
@@ -54,7 +54,7 @@ export function useArticles() {
     if (!user) return false;
     if (article.status === "published") return true;
     if (user.role === "admin") return true;
-    return article.createdBy === user.id;
+    return article.createdBy === user._id;
   };
 
   const visibleArticles = (user: User | null) => {
@@ -73,17 +73,17 @@ export function useArticles() {
       }
 
       const article: Article = {
-        id: uid(),
+        _id: uid(),
         title: data.title.trim(),
         content: data.content.trim(),
-        createdBy: user.id,
+        createdBy: user._id,
         status: "draft",
         createdAt: new Date().toISOString(),
       };
 
       const next = [article, ...storage.getArticles()];
       persist(next);
-      log(user.id, "CREATE_ARTICLE", article.id);
+      log(user._id, "CREATE_ARTICLE", article._id);
 
       return { ok: true, article };
     },
@@ -102,8 +102,8 @@ export function useArticles() {
       return { ok: false, error: "Not authorized" };
     }
 
-    persist(current.filter((a) => a.id !== articleId));
-    log(user.id, "DELETE_ARTICLE", articleId);
+    persist(current.filter((a) => a._id !== articleId));
+    log(user._id, "DELETE_ARTICLE", articleId);
 
     return { ok: true };
   };
@@ -125,13 +125,13 @@ export function useArticles() {
     }
 
     const next = current.map((a) =>
-      a.id === articleId
+      a._id === articleId
         ? { ...a, status: "published" as const }
         : a
     );
 
     persist(next);
-    log(user.id, "PUBLISH_ARTICLE", articleId);
+    log(user._id, "PUBLISH_ARTICLE", article._id);
 
     return { ok: true };
   };

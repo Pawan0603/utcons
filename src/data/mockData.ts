@@ -1,15 +1,15 @@
 export type Role = "admin" | "editor" | "viewer";
 
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
-  password: string;
-  role: Role;
+  // password: string;
+  role: string;
 }
 
 export interface Article {
-  id: string;
+  _id: string;
   title: string;
   content: string;
   createdBy: string; // user id
@@ -23,7 +23,7 @@ export type AuditAction =
   | "PUBLISH_ARTICLE";
 
 export interface AuditLog {
-  id: string;
+  _id: string;
   userId: string;
   action: AuditAction;
   articleId: string;
@@ -32,21 +32,21 @@ export interface AuditLog {
 
 export const seedUsers: User[] = [
   {
-    id: "u1",
+    _id: "u1",
     name: "Ada Admin",
     email: "admin@demo.com",
     password: "admin123",
     role: "admin",
   },
   {
-    id: "u2",
+    _id: "u2",
     name: "Eli Editor",
     email: "editor@demo.com",
     password: "editor123",
     role: "editor",
   },
   {
-    id: "u3",
+    _id: "u3",
     name: "Vera Viewer",
     email: "viewer@demo.com",
     password: "viewer123",
@@ -56,7 +56,7 @@ export const seedUsers: User[] = [
 
 export const seedArticles: Article[] = [
   {
-    id: "a1",
+    _id: "a1",
     title: "Welcome to Helix CMS",
     content:
       "Helix is a modern role-based content platform. Explore the dashboard to get started.",
@@ -67,7 +67,7 @@ export const seedArticles: Article[] = [
     ).toISOString(),
   },
   {
-    id: "a2",
+    _id: "a2",
     title: "Editorial guidelines (Draft)",
     content:
       "Internal draft outlining the new content style. Not yet ready for publication.",
@@ -78,7 +78,7 @@ export const seedArticles: Article[] = [
     ).toISOString(),
   },
   {
-    id: "a3",
+    _id: "a3",
     title: "Q4 Product Roadmap",
     content:
       "Here's what's shipping next quarter — RBAC v2, audit insights, and richer content blocks.",
