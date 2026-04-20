@@ -1,10 +1,9 @@
 "use client";
 
-import { FormEvent, useMemo, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useArticles } from "@/hooks/useArticles";
-import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,10 +29,6 @@ export default function Dashboard() {
   const router = useRouter();
 
   const {
-    visibleArticles,
-    createArticle,
-    deleteArticle,
-    publishArticle,
     canCreate,
     canDelete,
     canPublish,
@@ -48,7 +43,7 @@ export default function Dashboard() {
 
   const [Article, setArticle] = useState<Article[]>([]);
 
-  const users = useMemo(() => storage.getUsers(), []);
+  // const users = useMemo(() => storage.getUsers(), []);
 
   const getAllArticles = async () => {
     try {
@@ -146,10 +141,8 @@ export default function Dashboard() {
 
   const stats = {
     total: list.length,
-    drafts: visibleArticles(user).filter((a) => a.status === "draft").length,
-    published: visibleArticles(user).filter(
-      (a) => a.status === "published"
-    ).length,
+    drafts: list.filter((a) => a.status === "draft").length,
+    published: list.filter((a) => a.status === "published").length,
   };
 
   return (
@@ -278,15 +271,11 @@ export default function Dashboard() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((a) => {
-            const author = users.find(
-              (u) => u._id === a.createdBy
-            );
-
             return (
               <ArticleCard
                 key={a._id}
                 article={a}
-                author={author}
+                author={a.createdBy}
                 currentUser={user}
                 canDelete={canDelete(user, a)}
                 canPublish={canPublish(user, a)}
@@ -301,13 +290,7 @@ export default function Dashboard() {
 
       <ArticleDetailDialog
         article={viewing}
-        author={
-          viewing
-            ? users.find(
-              (u) => u._id === viewing.createdBy
-            )
-            : undefined
-        }
+        author={viewing?.createdBy}
         open={!!viewing}
         onOpenChange={(o) => !o && setViewing(null)}
       />

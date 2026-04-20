@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { createAuditLog } from "@/lib/auditLogger";
 
+import "@/lib/models/user";
+
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
@@ -90,12 +92,12 @@ export async function GET(req: NextRequest) {
     // RBAC Logic
     if (decoded.role === "admin" || decoded.role === "editor") {
       // Admin & Editor → all articles
-      articles = await ArticleModel.find().sort({ createdAt: -1 });
+      articles = await ArticleModel.find().sort({ createdAt: -1 }).populate("createdBy", "name email role");
     } else {
       // Viewer → only published
       articles = await ArticleModel.find({ status: "published" }).sort({
         createdAt: -1,
-      });
+      }).populate("createdBy", "name email role");
     }
 
     return NextResponse.json(

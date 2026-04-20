@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useArticles } from "@/hooks/useArticles";
-import { storage } from "@/lib/storage";
 import { ScrollText, Plus, Trash2, CheckCircle2 } from "lucide-react";
 import axios from "axios";
 
@@ -55,8 +53,6 @@ export default function Logs() {
   // const { logs, articles } = useArticles();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const router = useRouter();
-
-  const users = useMemo(() => storage.getUsers(), []);
 
   const getLogs = async () => {
     try {
