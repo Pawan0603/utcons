@@ -73,7 +73,7 @@ export default function ArticleCard({
             <Button
               size="sm"
               onClick={onPublish}
-              className="flex-1 bg-success hover:bg-success/90 text-success-foreground"
+              className="flex-1 bg-success hover:bg-success/90 text-success-foreground cursor-pointer"
             >
               <CheckCircle2 className="h-4 w-4 mr-1.5" />
               Publish
@@ -85,7 +85,7 @@ export default function ArticleCard({
               size="sm"
               variant="outline"
               onClick={onDelete}
-              className="flex-1 border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              className="flex-1 border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground hover:text-white cursor-pointer"
             >
               <Trash2 className="h-4 w-4 mr-1.5" />
               Delete

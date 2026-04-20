@@ -4,7 +4,7 @@ export interface Article {
     id: string;
     title: string;
     content: string;
-    createdBy: string;
+    createdBy: mongoose.Schema.Types.ObjectId;
     status: "draft" | "published";
     createdAt: Date;
 }
@@ -20,7 +20,8 @@ const ArticleSchema = new Schema<Article>({
         required: [true, "content is required"]
     },
     createdBy: { 
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: [true, "createdBy is required"]
     },
     status: {

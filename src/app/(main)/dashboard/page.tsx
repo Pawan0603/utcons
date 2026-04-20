@@ -23,7 +23,7 @@ import RoleBadge from "@/components/RoleBadge";
 import { Article } from "@/data/mockData";
 import { Plus, Search, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -71,10 +71,10 @@ export default function Dashboard() {
   if (loading || !user) return null;
 
   const list = Article
-  .filter((a) => (filter === "all" ? true : a.status === filter))
-  .filter((a) =>
-    a.title.toLowerCase().includes(query.toLowerCase())
-  );
+    .filter((a) => (filter === "all" ? true : a.status === filter))
+    .filter((a) =>
+      a.title.toLowerCase().includes(query.toLowerCase())
+    );
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
@@ -99,24 +99,49 @@ export default function Dashboard() {
       setTitle("");
       setContent("");
       setOpen(false);
-    } catch (err: any) {
-      const message =
-        err.response?.data?.error || "Could not create";
-
-      toast.error(message);
+    } catch (err) {
+      const error = err as AxiosError<{ error: string }>
+      toast.error(error.response?.data.error || "Somethin went worng.")
     }
   };
 
-  const handleDelete = (id: string) => {
-    const res = deleteArticle(user, id);
-    if (!res.ok) toast.error(res.error ?? "Failed");
-    else toast.success("Article deleted");
+  const handleDelete = async (id: string) => {
+    try {
+    await axios.delete(`/api/article/${id}`, {
+      withCredentials: true,
+    });
+
+    setArticle((prev) => prev.filter((a) => a._id !== id));
+    toast.success("Article deleted");
+  } catch (err) {
+    const error = err as AxiosError<{ error: string }>
+    toast.error(error.response?.data.error || "Somethin went worng.")
+  }
   };
 
-  const handlePublish = (id: string) => {
-    const res = publishArticle(user, id);
-    if (!res.ok) toast.error(res.error ?? "Failed");
-    else toast.success("Article published");
+  const handlePublish = async (id: string) => {
+    try {
+      const res = await axios.patch(
+        `/api/article/${id}`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+
+      setArticle((prev) =>
+        prev.map((a) =>
+          a._id === id ? { ...a, status: "published" } : a
+        )
+      );
+
+      toast.success("Article published");
+    } catch (err: any) {
+      return {
+        ok: false,
+        error: err.response?.data?.error || "Failed to publish",
+      };
+    }
   };
 
   const stats = {
