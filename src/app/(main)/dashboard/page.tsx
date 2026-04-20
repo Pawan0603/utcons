@@ -89,6 +89,7 @@ export default function Dashboard() {
         }
       );
 
+      getAllArticles();
       toast.success("Draft created");
 
       setTitle("");
@@ -214,7 +215,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
+      {user.role !== "viewer" && <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
         {[
           { label: "Visible", value: stats.total },
           { label: "Drafts", value: stats.drafts },
@@ -232,7 +233,7 @@ export default function Dashboard() {
             </p>
           </div>
         ))}
-      </div>
+      </div>}
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
@@ -245,7 +246,7 @@ export default function Dashboard() {
           />
         </div>
 
-        <div className="flex gap-1 p-1 bg-muted rounded-lg">
+        {user.role !== "viewer" && <div className="flex gap-1 p-1 bg-muted rounded-lg">
           {(["all", "draft", "published"] as const).map(
             (f) => (
               <button
@@ -260,7 +261,7 @@ export default function Dashboard() {
               </button>
             )
           )}
-        </div>
+        </div>}
       </div>
 
       {list.length === 0 ? (
