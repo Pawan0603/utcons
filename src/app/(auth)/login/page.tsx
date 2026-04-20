@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Shield, Sparkles } from "lucide-react";
+import axios, { AxiosError } from "axios";
 
 export default function Login() {
   const { login, user } = useAuth();
@@ -26,23 +27,40 @@ export default function Login() {
     }
   }, [user, router]);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
-      const res = login(email, password);
-      setLoading(false);
-
-      if (!res.ok) {
-        setError(res.error ?? "Login failed");
-        return;
+    try {
+      const data = {
+        email: email,
+        password: password
       }
 
-      toast.success("Welcome back!");
-      router.push("/dashboard");
-    }, 300);
+      let res = await axios.post('api/login', data);
+      toast.success(res.data?.message)
+      login(res.data.user); // calling AuthContext login funtion for validate token
+      router.push('/')
+    } catch (err) {
+      const error = err as AxiosError<{ error: string }>
+      toast.error(error.response?.data.error || "Somethin went worng.")
+    } finally {
+      setLoading(false);
+    }
+
+    // setTimeout(() => {
+    //   const res = login(email, password);
+    //   setLoading(false);
+
+    //   if (!res.ok) {
+    //     setError(res.error ?? "Login failed");
+    //     return;
+    //   }
+
+    //   toast.success("Welcome back!");
+    //   router.push("/dashboard");
+    // }, 300);
   };
 
   const fill = (em: string, pw: string) => {
@@ -122,17 +140,17 @@ export default function Login() {
                 {
                   label: "Admin",
                   email: "admin@demo.com",
-                  pw: "admin123",
+                  pw: "123456",
                 },
                 {
                   label: "Editor",
                   email: "editor@demo.com",
-                  pw: "editor123",
+                  pw: "123456",
                 },
                 {
                   label: "Viewer",
                   email: "viewer@demo.com",
-                  pw: "viewer123",
+                  pw: "123456",
                 },
               ].map((d) => (
                 <button

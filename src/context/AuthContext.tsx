@@ -1,122 +1,73 @@
 "use client";
 
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Role, User } from "@/data/mockData";
-import { storage, uid } from "@/lib/storage";
+import { deleteCookie } from "@/lib/deleteCookie";
+import axios from "axios";
+import { createContext, useContext, useEffect, useState } from "react";
 
-interface AuthContextValue {
+type User = {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
+type AuthContextType = {
   user: User | null;
   loading: boolean;
-  login: (
-    email: string,
-    password: string
-  ) => { ok: boolean; error?: string };
-  signup: (data: {
-    name: string;
-    email: string;
-    password: string;
-    role: Role;
-  }) => { ok: boolean; error?: string };
-  logout: () => void;
-}
+  login: (userData: User) => void;
+  logout: () => Promise<void>;
+};
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
+  // ✅ Check auth on page load
   useEffect(() => {
-    const sessionId = storage.getSession();
-
-    if (sessionId) {
-      const found =
-        storage.getUsers().find((u) => u.id === sessionId) ?? null;
-      setUser(found);
-    }
-
-    setLoading(false);
-  }, []);
-
-  const login: AuthContextValue["login"] = (email, password) => {
-    const users = storage.getUsers();
-
-    const found = users.find(
-      (u) =>
-        u.email.toLowerCase() === email.toLowerCase() &&
-        u.password === password
-    );
-
-    if (!found) {
-      return { ok: false, error: "Invalid email or password" };
-    }
-
-    storage.setSession(found.id);
-    setUser(found);
-
-    return { ok: true };
-  };
-
-  const signup: AuthContextValue["signup"] = ({
-    name,
-    email,
-    password,
-    role,
-  }) => {
-    const users = storage.getUsers();
-
-    if (
-      users.some((u) => u.email.toLowerCase() === email.toLowerCase())
-    ) {
-      return {
-        ok: false,
-        error: "An account with this email already exists",
-      };
-    }
-
-    const newUser: User = {
-      id: uid(),
-      name,
-      email,
-      password,
-      role,
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("/api/me", {
+          withCredentials: true, // ✅ important for cookies
+        });
+        console.log("User data:", res.data);
+        setUser(res.data.data);
+      } catch (err: any) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const next = [...users, newUser];
+    fetchUser();
+  }, []);
 
-    storage.setUsers(next);
-    storage.setSession(newUser.id);
-    setUser(newUser);
-
-    return { ok: true };
+  // ✅ Login (after signup/login API)
+  const login = (userData: User) => {
+    setUser(userData);
   };
 
-  const logout = () => {
-    storage.setSession(null);
+  // ✅ Logout
+  const logout = async () => {
+    // await fetch("/api/logout", {
+    //   method: "POST",
+    //   credentials: "include",
+    // });
+    deleteCookie();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, login, signup, logout }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-
-  if (!ctx) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-
-  return ctx;
-}
+// ✅ Custom Hook
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
+};

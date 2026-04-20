@@ -32,7 +32,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           {children}
-          <Toaster />
+          <Toaster richColors={true} theme={"light"}/>
         </AuthProvider>
         
       </body>

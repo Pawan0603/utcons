@@ -17,9 +17,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Shield } from "lucide-react";
+import axios, { AxiosError } from "axios";
 
 export default function Signup() {
-  const { signup, user } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -36,7 +37,7 @@ export default function Signup() {
     }
   }, [user, router]);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -45,20 +46,33 @@ export default function Signup() {
       return;
     }
 
+    const formData = { name, email, password, role };
+
     setLoading(true);
 
-    setTimeout(() => {
-      const res = signup({ name, email, password, role });
+    try {
+      let res = await axios.post('/api/signup', formData);
+      toast.success(res.data?.message);
+      router.push('/');
+    } catch (err) {
+      const error = err as AxiosError<{ error: string }>
+      toast.error(error.response?.data.error || "Something went wrong.")
+    } finally {
       setLoading(false);
+    }
 
-      if (!res.ok) {
-        setError(res.error ?? "Signup failed");
-        return;
-      }
+    // setTimeout(() => {
+    //   const res = signup({ name, email, password, role });
+    //   setLoading(false);
 
-      toast.success("Account created!");
-      router.push("/dashboard");
-    }, 300);
+    //   if (!res.ok) {
+    //     setError(res.error ?? "Signup failed");
+    //     return;
+    //   }
+
+    //   toast.success("Account created!");
+    //   router.push("/dashboard");
+    // }, 300);
   };
 
   return (
