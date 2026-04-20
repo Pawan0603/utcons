@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useArticles } from "@/hooks/useArticles";
 import { storage } from "@/lib/storage";
 import { ScrollText, Plus, Trash2, CheckCircle2 } from "lucide-react";
+import axios from "axios";
 
 const actionMeta = {
   CREATE_ARTICLE: {
@@ -25,30 +26,65 @@ const actionMeta = {
   },
 };
 
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+export interface Article {
+  _id: string;
+  title: string;
+}
+
+export type AuditAction =
+  | "CREATE_ARTICLE"
+  | "DELETE_ARTICLE"
+  | "PUBLISH_ARTICLE";
+
+export interface AuditLog {
+  _id: string;
+  action: AuditAction;
+  userId: User;
+  articleId: Article;
+  createdAt: string; // ISO date string
+}
+
 export default function Logs() {
   const { user, loading } = useAuth();
-  const { logs, articles } = useArticles();
+  // const { logs, articles } = useArticles();
+  const [logs, setLogs] = useState<AuditLog[]>([]);
   const router = useRouter();
 
   const users = useMemo(() => storage.getUsers(), []);
 
-  // ✅ Replace Navigate
-  useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.replace("/login");
-      } else if (user.role === "viewer") {
-        router.replace("/dashboard");
-      }
+  const getLogs = async () => {
+    try {
+      const res = await axios.get("/api/logs", {
+        withCredentials: true,
+      });
+      console.log("Fetched logs:", res.data.logs);
+      setLogs(res.data.logs);
+    } catch (err: any) {
+      return {
+        ok: false,
+        error: err.response?.data?.error || "Failed to fetch logs",
+      };
     }
-  }, [user, loading, router]);
+  };
+
+  useEffect(() => {
+    if(user){
+      getLogs();
+    }
+  }, [user]);
 
   if (loading || !user) return null;
 
-  const visible =
-    user.role === "admin"
-      ? logs
-      : logs.filter((l) => l.userId === user.id);
+  // const visible =
+  //   user.role === "admin"
+  //     ? logs
+  //     : logs.filter((l) => l.userId === user._id);
 
   return (
     <main>
@@ -67,7 +103,7 @@ export default function Logs() {
         </h1>
       </div>
 
-      {visible.length === 0 ? (
+      {logs.length === 0 ? (
         <div className="flex flex-col items-center justify-center text-center py-20 rounded-2xl border-2 border-dashed border-border">
           <ScrollText className="h-10 w-10 text-muted-foreground mb-3" />
           <h3 className="font-semibold">No activity yet</h3>
@@ -79,16 +115,12 @@ export default function Logs() {
       ) : (
         <div className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
           <ul className="divide-y divide-border/60">
-            {visible.map((log) => {
+            {logs.map((log) => {
               const meta = actionMeta[log.action];
-              const actor = users.find((u) => u.id === log.userId);
-              const article = articles.find(
-                (a) => a.id === log.articleId
-              );
 
               return (
                 <li
-                  key={log.id}
+                  key={log._id}
                   className="flex items-start gap-4 p-4 sm:p-5 hover:bg-muted/40 transition-colors"
                 >
                   <div
@@ -103,19 +135,20 @@ export default function Logs() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm">
                       <span className="font-semibold">
-                        {actor?.name ?? "Unknown user"}
+                        {log.userId.name}
                       </span>{" "}
                       <span className="text-muted-foreground">
                         {meta.label.toLowerCase()}
                       </span>{" "}
                       <span className="font-medium">
-                        {article?.title ??
-                          `article ${log.articleId.slice(0, 6)}`}
+                        {log.articleId === null || log.articleId === undefined
+                          ? "an article"
+                          : `"${log.articleId.title}"`}
                       </span>
                     </p>
 
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {new Date(log.timestamp).toLocaleString()}
+                      {new Date(log.createdAt).toLocaleString()}
                     </p>
                   </div>
 

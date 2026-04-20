@@ -3,6 +3,7 @@ import connectDB from "@/lib/connectDB";
 import ArticleModel from "@/lib/models/article";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { createAuditLog } from "@/lib/auditLogger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,6 +38,14 @@ export async function POST(req: NextRequest) {
       content,
       createdBy: decoded._id,
       status: status || "draft",
+    });
+
+    article.save();
+
+    await createAuditLog({
+      userId: decoded._id,
+      action: "CREATE_ARTICLE",
+      articleId: article._id.toString(),
     });
 
     return NextResponse.json(

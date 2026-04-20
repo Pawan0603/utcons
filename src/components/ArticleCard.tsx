@@ -27,7 +27,7 @@ export default function ArticleCard({
   onPublish,
   onView,
 }: Props) {
-  const isMine = article.createdBy === currentUser.id;
+  const isMine = article.createdBy === currentUser._id;
 
   const handleCardClick = (e: MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest("button")) return;

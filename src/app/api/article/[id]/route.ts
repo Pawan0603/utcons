@@ -3,6 +3,7 @@ import ArticleModel from "@/lib/models/article";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { createAuditLog } from "@/lib/auditLogger";
 
 export async function PATCH(
   req: NextRequest,
@@ -40,6 +41,12 @@ export async function PATCH(
 
     article.status = "published";
     await article.save();
+
+    await createAuditLog({
+      userId: decoded._id,
+      action: "PUBLISH_ARTICLE",
+      articleId: article._id.toString(),
+    });
 
     return NextResponse.json(
       { message: "Article published successfully", article },
@@ -104,6 +111,12 @@ export async function DELETE(
 
     // ✅ delete
     await ArticleModel.findByIdAndDelete(id);
+
+    await createAuditLog({
+      userId: decoded._id,
+      action: "DELETE_ARTICLE",
+      articleId: article._id.toString(),
+    });
 
     return NextResponse.json(
       { message: "Article deleted successfully" },
