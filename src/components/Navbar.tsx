@@ -66,7 +66,7 @@ export default function Navbar() {
                 <RoleBadge role={user.role} />
               </div>
 
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="hover:bg-muted hover:cursor-pointer">
                 <LogOut className="h-4 w-4 mr-1.5" /> Logout
               </Button>
             </>

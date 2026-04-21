@@ -60,19 +60,6 @@ export default function Signup() {
     } finally {
       setLoading(false);
     }
-
-    // setTimeout(() => {
-    //   const res = signup({ name, email, password, role });
-    //   setLoading(false);
-
-    //   if (!res.ok) {
-    //     setError(res.error ?? "Signup failed");
-    //     return;
-    //   }
-
-    //   toast.success("Account created!");
-    //   router.push("/dashboard");
-    // }, 300);
   };
 
   return (
@@ -164,7 +151,7 @@ export default function Signup() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-primary shadow-glow"
+              className="w-full bg-gradient-primary shadow-glow hover:cursor-pointer"
             >
               {loading ? "Creating..." : "Create account"}
             </Button>

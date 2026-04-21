@@ -124,7 +124,7 @@ export default function Login() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-primary shadow-glow"
+              className="w-full bg-gradient-primary shadow-glow hover:cursor-pointer"
             >
               {loading ? "Signing in..." : "Sign in"}
             </Button>
@@ -157,7 +157,7 @@ export default function Login() {
                   key={d.email}
                   type="button"
                   onClick={() => fill(d.email, d.pw)}
-                  className="text-left text-xs px-3 py-2 rounded-lg bg-muted hover:bg-accent hover:text-accent-foreground transition-colors flex justify-between"
+                  className="text-left text-xs px-3 py-2 rounded-lg bg-muted hover:bg-accent hover:text-accent-foreground transition-colors flex justify-between hover:cursor-pointer"
                 >
                   <span className="font-semibold">{d.label}</span>
                   <span className="text-muted-foreground">

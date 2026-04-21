@@ -165,7 +165,7 @@ export default function Dashboard() {
         {canCreate(user) && (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-primary shadow-glow w-full sm:w-auto">
+              <Button className="bg-gradient-primary shadow-glow w-full sm:w-auto hover:cursor-pointer">
                 <Plus className="h-4 w-4 mr-1.5" /> New article
               </Button>
             </DialogTrigger>
@@ -236,7 +236,7 @@ export default function Dashboard() {
       </div>}
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
+        <div className="relative flex-1 flex flex-row items-center">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search articles..."
@@ -252,7 +252,7 @@ export default function Dashboard() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-1.5 rounded-md text-sm ${filter === f
+                className={`px-4 py-1.5 rounded-md text-sm hover:cursor-pointer ${filter === f
                   ? "bg-card text-foreground"
                   : "text-muted-foreground"
                   }`}
