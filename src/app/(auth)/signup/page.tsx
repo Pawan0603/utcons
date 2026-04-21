@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Shield } from "lucide-react";
+import { Newspaper } from "lucide-react";
 import axios, { AxiosError } from "axios";
 
 export default function Signup() {
@@ -68,7 +68,7 @@ export default function Signup() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
-              <Shield
+              <Newspaper
                 className="h-6 w-6 text-primary-foreground"
                 strokeWidth={2.5}
               />

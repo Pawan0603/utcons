@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Menu, ScrollText, Shield, X } from "lucide-react";
+import { LogOut, Menu, Newspaper, ScrollText, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import RoleBadge from "./RoleBadge";
@@ -34,7 +34,7 @@ export default function Navbar() {
           className="flex items-center gap-2 group"
         >
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
-            <Shield
+            <Newspaper
               className="h-5 w-5 text-primary-foreground"
               strokeWidth={2.5}
             />
@@ -135,7 +135,7 @@ export default function Navbar() {
 
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full mt-4"
                   onClick={handleLogout}
                 >
                   <LogOut className="h-4 w-4 mr-1.5" /> Logout
