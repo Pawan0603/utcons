@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent } from "react";
+import { MouseEvent, useState } from "react";
 import { Article, User } from "@/data/mockData";
 import StatusBadge from "./StatusBadge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,8 @@ export default function ArticleCard({
   onView,
 }: Props) {
   const isMine = article.createdBy._id === currentUser._id;
+
+  const [isPublishing, setIsPublishing] = useState<boolean>(false);
 
   const handleCardClick = (e: MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest("button")) return;
@@ -72,11 +74,15 @@ export default function ArticleCard({
           {canPublish && (
             <Button
               size="sm"
-              onClick={onPublish}
+              onClick={() => {
+                setIsPublishing(true);
+                onPublish();
+              }}
               className="flex-1 bg-success hover:bg-success/90 text-success-foreground cursor-pointer"
+              disabled={isPublishing}
             >
               <CheckCircle2 className="h-4 w-4 mr-1.5" />
-              Publish
+              {isPublishing ? "Publishing..." : "Publish"}
             </Button>
           )}
 
