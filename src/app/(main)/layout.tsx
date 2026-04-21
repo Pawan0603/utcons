@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <div className="min-h-screen bg-background bg-gradient-mesh">
       <Navbar />
-      <main className="container py-8 md:py-12 px-4 md:px-20">
+      <main className="py-8 md:py-12 px-4 md:px-20">
         {children}
       </main>
     </div>

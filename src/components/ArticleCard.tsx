@@ -30,6 +30,7 @@ export default function ArticleCard({
   const isMine = article.createdBy._id === currentUser._id;
 
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const handleCardClick = (e: MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest("button")) return;
@@ -90,11 +91,15 @@ export default function ArticleCard({
             <Button
               size="sm"
               variant="outline"
-              onClick={onDelete}
+              onClick={() => {
+                setIsDeleting(true);
+                onDelete();
+              }}
               className="flex-1 border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground hover:text-white cursor-pointer"
+              disabled={isDeleting}
             >
               <Trash2 className="h-4 w-4 mr-1.5" />
-              Delete
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           )}
         </div>
